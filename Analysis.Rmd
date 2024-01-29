@@ -1,0 +1,82 @@
+---
+title: "DCNP Colorectal trends"
+author: "Dan Weinberger"
+date: '2024-01-29'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(dplyr)
+library(lubridate)
+library(MASS)
+library(ggplot2)
+library(patchwork) # combining plots
+
+source('./R/RunControl.R')
+source('./R/OutputsControl.R')
+
+```
+
+## Read in Data
+
+```{r}
+a1 <- read_excel('./CONFIDENTIAL/DCNP CRC Incidence Data.xlsx') %>%
+  rename(Outcome=`Incident CRC Diagnoses (N)`,
+         date=Year,
+         Population=`Population (N)`) %>%
+  mutate( date = as.Date(date),
+          monthdays = days_in_month(date)) %>%
+    mutate(log_offset= log(Population/monthdays*30.3)) %>%
+  arrange( date) 
+
+
+```
+
+## Panel A: Papillary <2 cm {.tabset}
+```{r}
+b1 <- a1 %>%
+  arrange(date) %>%
+  mutate(index=row_number())
+
+set.start.date =as.Date('2020-03-01')
+
+form1a <- ' ~ index + offset(log_offset)'
+outcome <- 'Outcome_pre '
+form1 <- paste0(outcome, form1a)
+
+mod1 <- RunControl(ds=b1 ,set.start.date=set.start.date, set.form_cont1=form1)
+
+out1 <-  OutputsControl(fitted.mod=mod1, niter=10000)
+```
+
+### RR trend
+```{r}
+fig1a <-out1$p.rr.trend
+
+fig1a
+```
+### Obs vs expected trend
+```{r}
+fig2a <- out1$p.preds
+fig2a
+```
+### Cumulative prevented trend
+
+```{r}
+fig3a <- out1$p.cum_prevented
+fig3a
+```
+
+```{r}
+fig2a / fig1a /fig3a 
+```
+
+```{r}
+plotly::ggplotly(fig1a)
+```
+
+
+
+
