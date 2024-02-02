@@ -59,18 +59,20 @@ fig1a
 ```
 ### Obs vs expected trend
 ```{r}
-fig2a <- out1$p.preds
+fig2a <- out1$p.preds +ylim(0,450)
 fig2a
 ```
 ### Cumulative prevented trend
 
 ```{r}
-fig3a <- out1$p.cum_prevented
+fig3a <- out1$p.cum_prevented +
+  coord_cartesian( ylim=c(0,450))
 fig3a
 ```
 
-```{r}
-fig2a / fig1a /fig3a 
+```{r, fig.width=4, fig.height=6}
+fig2a / fig1a /fig3a +
+   plot_annotation(tag_levels = 'A')
 ```
 
 ```{r}
