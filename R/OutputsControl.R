@@ -88,8 +88,9 @@ OutputsControl <- function( fitted.mod=mod3,niter=10000, months.start=0, set.mon
     geom_hline(yintercept=1, lty=2, col='red')+
     geom_vline(xintercept=as.numeric(set.start.date), lty=2, col='black')
   
-  
+  date.join <- rr.q.t %>% dplyr::select(date)
   p.cum_prevented <- cum.post.t.q %>% 
+    full_join(date.join, by='date') %>%
     ungroup() %>%
     ggplot( aes( x=date, y=median)) +
     geom_line() +
@@ -99,8 +100,8 @@ OutputsControl <- function( fitted.mod=mod3,niter=10000, months.start=0, set.mon
     geom_ribbon(data=cum.post.t.q, aes(x=date, ymin=lcl, ymax=ucl), alpha=0.1) +
     ylab('Cases not diagnosed') +
     geom_hline(yintercept=1, lty=2, col='red')+
-    geom_vline(xintercept=(as.numeric(set.start.date)-15), lty=2, col='black')+
-    xlim(min=as.Date('2020-02-01'), NA)
+    geom_vline(xintercept=(as.numeric(set.start.date)-15), lty=2, col='black')#+
+   #xlim(min=as.Date('2020-02-01'), NA)
   
   
   all.preds <- preds.q %>%
